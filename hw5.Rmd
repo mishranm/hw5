@@ -1,0 +1,165 @@
+---
+title: "Homework 5"
+author: "Narad Mishra"
+date: "October 27, 2017"
+output: html_document
+---
+
+#Question 1
+In amaratunga & Cabrera (2004) "Exploration and Analysis of DNA Microarray and Protein Array Data", the authors suggest judging the success of or need for normalization by estimating Spearman's rank correlation coefficient given by, 
+
+$$ \hat p_s = 12\frac{\sum_{g=1}^G(R_g1 - \frac{(G + 1)}{2})(R_g2 - \frac{(G+1)}{2})}{G(G^2-1)} $$
+
+where $R_g1$ is the rank of $Y_gi$ when {$Y_gi$} are ranked from 1 to G, and the concondance correlation coefficient, which is given as 
+
+$$ \hat p_c = \frac{2s_12}{s_1^2 + s_2^2 + (\hat Y_1 - \hat Y_2^2)^2}  $$
+
+where $\hat Y_c = \sum_{g=1}^G \frac{Y_gc}{G}$ and $s_c^2 = \frac{\sum_{g=1}^G(Y_gc - \hat Y_c)^2}{G}$ are teh mean and variance of hte $c^th$ microarray (c=1, 2), and $s_12=\frac{\sum_{g=1}^G (Y_g1 - \hat Y_1)(Y_g2 - \hat Y_2)}{G}$ is the covariance.
+
+The guidelines are presented as follows:
+
+ * If, for pair of arrays, $\hat p_c$ is very high (say, $\ge$ .99), normalization may not be necessary.
+ 
+ * If $\hat p_c$ is not very high yet $\hat p_s$ is high (say, $\hat p_C \ge 0.80), indicating a monotone, but not strongly concordant relationship, normalization is very likely to be highly beneficial.
+ 
+ * When both $\hat p_c$ and $\hat p_s$ are low, indication that the relationship between the arrays is not strong, it may be worth looking further to see whether there was a problem with either of the arrays before doing any normalization.
+ 
+ Examine this advice by doing the following:
+ 
+ **a.)** First, set the random seed to 123 using set.seed(123)
+ Use the mvrnorm function in the MASS library in R to generate 50 observations from a bivariate normal distribution with mean vector (0,0) and variance-covariance matrix *matrix(c(1,0.95, 0.95, 1),ncol=1)
+Produce a scatterplot of hte two vectors.
+ 
+```{r}
+set.seed(123)
+dat1<-data.frame(mvrnorm(50, mu=c(0,0), Sigma=matrix(c(1,0.95,0.95,1),ncol=2)))
+colnames(dat1)<-c("y1","y2")
+attach(dat1)
+plot(dat1)
+```
+
+**b.)** Use the cor function in R to estimate Spearman's correlation.
+
+```{r}
+cor(dat1, method = "spearman")
+```
+
+**c.)** Write your own R function to estimate the concordance correlation coefficient. **d.)** Estimate the concordance correlation coefficient on the data.
+
+```{r}
+concocoe<-function(x){
+S<-sum((y1-mean(y1))*(y2-mean(y2)))/50
+s1sqr<-sum((y1-mean(y1))^2)/50
+s2sqr<-sum((y2-mean(y2))^2)/50
+mndiffsq<-(mean(y1)-mean(y2))^2
+pcap<-(2*S)/(s1 + s2 + mndiffsq)
+return(pcap)
+}
+concocoe(dat1)
+
+```
+
+
+**e.)** Now, set the random seed again to 123 using set.seed(123)
+Use the MASS library in R to generate 50 observations from a bivarite normal distribution with mean vector (6,8) and variance-covariance matrix matrix(c(1, 0.95, 0.95, 1), ncol=2). Produce a scatterplot of the two vectors.
+
+```{r}
+set.seed(123)
+dat2<-data.frame(mvrnorm(50, mu=c(6,8), Sigma=matrix(c(1,0.95,0.95,1),ncol=2),empirical = TRUE))
+colnames(dat2)<-c("y3","y4")
+attach(dat2)
+plot(dat2)
+```
+
+
+**f.)** Estimate Spearman's and concordance correlation coefficient for the data generated in part (e). 
+
+* The Spearman correlation and Concordance coefficient came out to be the following; First number is spearman and the second is concordance coefficient.
+
+```{r}
+cor(dat2, method = "spearman")
+concocoe(dat2)
+```
+
+
+**g.)** Imagine that these two datasets from part (a) and part (e) represent data from the Red and Green channels of two different custom spotted arrays (i.e, arrayA and arrayE). Plot both arrays on an MA plot, and observe their behaviour. Discuss whether normalization is needed for these chips, and if so, what type of normalization procedure you would recommend.
+
+```{r}
+
+```
+
+#Question 2
+
+Suppose you are reviewing a manuscript for publication, and the authors developed the following method for detection outliers in microarray experiments, where each microarray contains 20,000 gene intensities. 
+"Extreme signal intensities (outliers) across all genes are those intensities either greater than or less than the median  ± 1.5*IQR, where the IQR is the difference between the third and first quartiles, symbolically, IQR=Q3-Q1."
+
+Suppose in reality your gene intensities are normally distributed. What proportion of gene expression intensities would you expect to declare as outliers? Comment on the appropriateness of this method. 
+
+# Question 3
+
+The swiss data set in R includes a standardized fertility measure and socio-economic indicators for each of 47 French-speaking provinces of Switzerland at about 1888. For the swiss data in R
+
+**a.)** Plot an MA plot for the variables Education and Infant.Mortality.
+
+**b.)** Using a span of 40% fit a lowess regression to the MA plot. List the fitted values and overlay the fitted curve on the MA plot.
+
+**c.)** What is the name of the province that has values of Education=9 and Infant.mortality=17.8?
+
+**d.)** Identity this province (Education=9 and Infant.Mortality=17.8) on the MA plot using plotting symbol pch=24.
+
+**e.)** List the names of these 18 provinces that are nearest neighbors on the MA plot to observation with Education =9 and Infant.Mortality=17.8.
+
+**f.)** Identify these 18 provinces (from part f) on the MA plot using plotting symbol pch=16.
+
+**g.)** Using the tri-cube weight function, list the weights for each of these 18 nearest neighbors listed in (2f).
+
+**h.)** Fit the weighted least squares regression model for this point using these 18 nearest neighbors for the MA plot.
+
+**i.)** Overlay the fitted weighted least squares regression line on the MA plot.
+
+
+#Question 4
+
+The three custom spotted array data ???les GMU1420.txt, GMU1421.txt, and GMU1422.txt are three technical replicates whereby the Stratagene Universal Human RNA was hybridized. Read the data into the R programming environment. Use code from in-class exercises, change names of the columns containing Red/Green intensities as to NOT contain spaces, like: name.Gf = "ch1Intensity" 
+
+**a.)** Produce all chip-speci???c MA plots. 
+
+
+**b.)** For GMU1420.txt, produce a scatterplot of the Green foreground by Green background, as well as a plot of Red foreground by Red background. What, if anything, do these plot suggest?
+
+
+**c.)** Apply constant global normalization to the raw data; plot the MA plots and boxplots by print-tip for this post normalized data.
+
+
+**d.)** Apply global loess normalization to the raw data; plot the MA plots and boxplots by print-tip for this post normalized data. 
+
+
+**e.)** Apply print tip loess normalization to the raw data; plot the MA plots and boxplots by print tip for this post normalized data.
+
+
+**f.)** Write a brief paragraph comparing and contrasting these normalization methods applied to this set of custom spotted array data.
+
+
+#Question 5
+
+Read the posted *.CEL ???les (A???ymetrix GeneChip data) into the R programming environment. These two GeneChips were each hybridized with the same RNA, hence, they are technical replicates. 
+
+**a.)** Produce a boxplot of the PM and MM intensities signals by GeneChip. 
+
+
+**b.)** Produce the MA plots using only the PM intensities for these GeneChips. 
+
+
+**c.)** Apply quantile normalization to this set of data; plot the resulting MA plot for the post-normalized PM data for these GeneChips. 
+
+
+**d.)** Apply invariant set normalization and plot the resulting MA plot for the post- normalized PM data for these GeneChips. 
+
+
+**e.)** Apply loess normalization and plot the resulting MA plot for the post- normalized PM data for these GeneChips.
+
+ 
+ 
+ 
+ 
+ 
